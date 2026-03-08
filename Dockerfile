@@ -1,13 +1,13 @@
-DESDE nodo:20 
+FROM node:20
 
-WORKDIR /app 
+WORKDIR /app
 
-EJECUTAR apt-get update && apt-get install -y python3 ffmpeg 
+RUN apt-get update && apt-get install -y python3 ffmpeg
 
-COPIAR paquete*.json ./ 
+COPY package*.json ./
 
-EJECUTAR npm install 
+RUN npm install
 
-COPIAR . . 
+COPY . .
 
-CMD [ "nodo" , "index.js" ]
+CMD ["node", "index.js"]
