@@ -5,4 +5,4 @@ builder = "NIXPACKS"
 startCommand = "node index.js"
 
 [nixpacks]
-packages = ["nodejs", "python3", "ffmpeg"]
+packages = ["nodejs-20_x", "python3", "ffmpeg"]
