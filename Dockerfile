@@ -5,7 +5,13 @@ WORKDIR /app
 COPY package*.json ./
 
 # instalar dependencias del sistema
-RUN apt-get update && apt-get install -y ffmpeg yt-dlp python3
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    yt-dlp \
+    python3 \
+    python3-pip \
+    build-essential \
+    git
 
 # instalar dependencias node
 RUN npm install
