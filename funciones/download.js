@@ -8,7 +8,7 @@ async function downloadMp3(url) {
 
   return new Promise((resolve, reject) => {
 
-    const command = `yt-dlp -x --audio-format mp3 -o "${filePath}" "${url}"`;
+    const command = `yt-dlp --user-agent "Mozilla/5.0" -x --audio-format mp3 -o "${filePath}" "${url}"`;
 
     exec(command, (error) => {
 
