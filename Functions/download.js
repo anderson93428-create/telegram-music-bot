@@ -1,30 +1,47 @@
-const ytdl = require("ytdl-core");
-const ffmpeg = require("fluent-ffmpeg");
-const ffmpegPath = require("ffmpeg-static");
-const fs = require("fs");
-const path = require("path");
+const fs = require('fs');
+const play = require('play-dl');
+const { exec } = require('child_process');
 
-ffmpeg.setFfmpegPath(ffmpegPath);
+// 🔊 AUDIO
+async function downloadAudio(url) {
 
-async function downloadMp3(url) {
+  const file = "audio.mp3";
 
-  const fileName = "song_" + Date.now() + ".mp3";
-  const filePath = path.join(__dirname, "..", fileName);
+  const stream = await play.stream(url, { quality: 2 });
+
+  const writeStream = fs.createWriteStream(file);
 
   return new Promise((resolve, reject) => {
 
-    const stream = ytdl(url, {
-      quality: "highestaudio"
+    stream.stream.pipe(writeStream);
+
+    writeStream.on('finish', () => {
+      resolve(file);
     });
 
-    ffmpeg(stream)
-      .audioBitrate(128)
-      .save(filePath)
-      .on("end", () => resolve(filePath))
-      .on("error", reject);
+    writeStream.on('error', reject);
 
   });
 
 }
 
-module.exports = { downloadMp3 };
+// 🎬 VIDEO
+async function downloadVideo(url) {
+
+  const file = "video.mp4";
+
+  return new Promise((resolve, reject) => {
+
+    exec(`ffmpeg -i "${url}" -c copy ${file}`, (error) => {
+      if (error) return reject(error);
+      resolve(file);
+    });
+
+  });
+
+}
+
+module.exports = {
+  downloadAudio,
+  downloadVideo
+};

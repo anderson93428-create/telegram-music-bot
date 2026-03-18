@@ -1,89 +1,67 @@
 require('dotenv').config();
 
 const { Telegraf } = require('telegraf');
-const ytdlp = require('yt-dlp-exec');
-const fs = require('fs');
+const { downloadAudio, downloadVideo } = require('./functions/download');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
+// START
 bot.start((ctx) => {
-  ctx.reply("👋 Bienvenido.\n\nEnvíame un link de YouTube y podrás descargar:\n🎵 Música (MP3)\n🎬 Video (MP4)");
+  ctx.reply(
+    "👋 Bienvenido a tu bot PRO 🎧\n\n" +
+    "Envíame un link de YouTube y podrás:\n" +
+    "🎵 Descargar música\n" +
+    "🎬 Descargar video"
+  );
 });
 
+// RECIBIR LINK
 bot.on('text', async (ctx) => {
 
   const url = ctx.message.text;
 
   if (url.includes("youtube.com") || url.includes("youtu.be")) {
 
-    await ctx.reply("¿Qué deseas descargar?", {
+    await ctx.reply("¿Qué deseas hacer?", {
       reply_markup: {
         inline_keyboard: [
-          [{ text: "🎵 Descargar Música (MP3)", callback_data: "mp3|" + url }],
-          [{ text: "🎬 Descargar Video (MP4)", callback_data: "mp4|" + url }]
+          [{ text: "🎵 Música (MP3)", callback_data: "mp3|" + url }],
+          [{ text: "🎬 Video (MP4)", callback_data: "mp4|" + url }]
         ]
       }
     });
 
   } else {
-
     ctx.reply("⚠️ Envíame un link válido de YouTube.");
-
   }
 
 });
 
+// BOTONES
 bot.on("callback_query", async (ctx) => {
 
-  const data = ctx.callbackQuery.data;
-  const [type, url] = data.split("|");
+  const [type, url] = ctx.callbackQuery.data.split("|");
 
   try {
 
     if (type === "mp3") {
-
-      await ctx.reply("🎵 Descargando música...");
-
-      const file = "audio.mp3";
-
-      await ytdlp(url, {
-        extractAudio: true,
-        audioFormat: "mp3",
-        output: file
-      });
-
+      await ctx.reply("🎵 Procesando audio...");
+      const file = await downloadAudio(url);
       await ctx.replyWithAudio({ source: file });
-
-      fs.unlinkSync(file);
-
     }
 
     if (type === "mp4") {
-
-      await ctx.reply("🎬 Descargando video...");
-
-      const file = "video.mp4";
-
-      await ytdlp(url, {
-        format: "mp4",
-        output: file
-      });
-
+      await ctx.reply("🎬 Procesando video...");
+      const file = await downloadVideo(url);
       await ctx.replyWithVideo({ source: file });
-
-      fs.unlinkSync(file);
-
     }
 
-  } catch (error) {
-
-    console.log(error);
-    ctx.reply("❌ Ocurrió un error descargando el archivo.");
-
+  } catch (err) {
+    console.log(err);
+    ctx.reply("❌ Error procesando el contenido.");
   }
 
 });
 
 bot.launch();
-
-console.log("🤖 Bot funcionando...");
+console.log("🤖 Bot PRO funcionando...");
